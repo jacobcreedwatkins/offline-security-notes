@@ -1,0 +1,30 @@
+<mxfile host="app.diagrams.net" modified="2022-05-12T23:16:47.437Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36" etag="_b3n9zuZZY4XDGQMb67N" version="18.0.3" type="github">
+  <diagram id="iwLks6HY5HqMqOYmhnq3" name="Page-1">
+    <mxGraphModel dx="1422" dy="786" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="VXlB88j0Ht-4RjSV8-hH-1" value="LINUX" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="40" y="330" width="170" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="VXlB88j0Ht-4RjSV8-hH-2" value="WINDOWS" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="40" y="60" width="180" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="VXlB88j0Ht-4RjSV8-hH-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="VXlB88j0Ht-4RjSV8-hH-3" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1169.9999999999995" y="625" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="VXlB88j0Ht-4RjSV8-hH-3" value="LINUX OPSTATION" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="520" y="540" width="170" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="VXlB88j0Ht-4RjSV8-hH-5" value="GREYHOST" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="1170" y="540" width="170" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="VXlB88j0Ht-4RjSV8-hH-6" value="THINGS TO ADD&lt;br&gt;---------------------------&lt;br&gt;IP addresses&lt;br&gt;hostnames&lt;br&gt;ports&lt;br&gt;other things of note" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="430" y="175" width="120" height="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

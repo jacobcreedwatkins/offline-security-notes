@@ -122,3 +122,20 @@ RECON FROM GRAYHOST ON THE WEB SERVER
 
 	
 	if you can rename an executable, you can replace it. this is called BINARY REPLACEMENT, and you have notes on it already.
+	
+Right when you gain access:
+Whoami
+Hostname
+Pwd
+Cat /etc/passwd
+Cat /etc/hosts
+Sudo -l
+Find / -type f -perm /(2)(4)(6)000 2>/dev/null
+Ps -elfH (Hierarchy) - Enumerate processes (Useful for finding antivirus)
+Chkconfig - Enumerate services
+Ifconfig -a / ip a - Enumerate network connection
+Arp -a / ip neigh - View possible previous connections
+SS -nltp - New netstat command
+Last - Who was last logged in
+Find /* -type d -iname “.*” - Find hidden directories
+

@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2022-05-12T23:16:47.437Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36" etag="_b3n9zuZZY4XDGQMb67N" version="18.0.3" type="github">
+<mxfile host="app.diagrams.net" modified="2022-05-13T03:10:11.752Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36" etag="RLDYXBB984TIwbPfF5PW" version="18.0.3" type="github">
   <diagram id="iwLks6HY5HqMqOYmhnq3" name="Page-1">
-    <mxGraphModel dx="1422" dy="786" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="2844" dy="1572" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -23,6 +23,9 @@
         </mxCell>
         <mxCell id="VXlB88j0Ht-4RjSV8-hH-6" value="THINGS TO ADD&lt;br&gt;---------------------------&lt;br&gt;IP addresses&lt;br&gt;hostnames&lt;br&gt;ports&lt;br&gt;other things of note" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
           <mxGeometry x="430" y="175" width="120" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="5f5x71QMEZWMEhQyGvGR-1" value="ON A NEW BOX?&lt;br&gt;--------------------------&lt;br&gt;&lt;div&gt;Whoami&lt;/div&gt;&lt;div&gt;Hostname&lt;/div&gt;&lt;div&gt;Pwd&lt;/div&gt;&lt;div&gt;Cat /etc/passwd&lt;/div&gt;&lt;div&gt;Cat /etc/hosts&lt;/div&gt;&lt;div&gt;Sudo -l&lt;/div&gt;&lt;div&gt;Find / -type f -perm /(2)(4)(6)000 2&amp;gt;/dev/null&lt;/div&gt;&lt;div&gt;Ps -elfH (Hierarchy) - Enumerate processes (Useful for finding antivirus)&lt;/div&gt;&lt;div&gt;Chkconfig - Enumerate services&lt;/div&gt;&lt;div&gt;Ifconfig -a / ip a - Enumerate network connection&lt;/div&gt;&lt;div&gt;Arp -a / ip neigh - View possible previous connections&lt;/div&gt;&lt;div&gt;SS -nltp - New netstat command&lt;/div&gt;&lt;div&gt;Last - Who was last logged in&lt;/div&gt;&lt;div&gt;Find /* -type d -iname “.*” - Find hidden directories&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="620" y="70" width="400" height="230" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
